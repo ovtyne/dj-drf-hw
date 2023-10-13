@@ -3,13 +3,16 @@ from django.urls import path
 from lms.apps import LmsConfig
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
-from lms.views import LmsViewSet, CourseViewSet, LessonCreateAPIView, LessonListAPIView, LessonRetrieveAPIView, \
+from lms.views import CourseViewSet, LessonCreateAPIView, LessonListAPIView, LessonRetrieveAPIView, \
     LessonUpdateAPIView, LessonDestroyAPIView
 
 app_name = LmsConfig.name
 
-router = DefaultRouter()
-router.register(r'lms', LmsViewSet, basename='lms')
+# router = DefaultRouter()
+# router.register(r'lms', LmsViewSet, basename='lms')
+
+router = SimpleRouter()
+router.register(r'course', CourseViewSet, basename='course')
 
 urlpatterns = [
     path('create/', LessonCreateAPIView.as_view(), name='lms-create'),
@@ -19,6 +22,5 @@ urlpatterns = [
     path('delete/<int:pk>', LessonDestroyAPIView.as_view(), name='lms-delete'),
 ] + router.urls
 
-router = SimpleRouter()
-router.register(r'course', CourseViewSet, basename='course')
-urlpatterns += router.urls
+
+# urlpatterns += router.urls

@@ -3,4 +3,6 @@ Django
 djangorestframework
 psycopg2-binary
 pillow
+python-dotenv
+
 
