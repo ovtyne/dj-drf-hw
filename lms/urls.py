@@ -4,7 +4,7 @@ from lms.apps import LmsConfig
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
 from lms.views import CourseViewSet, LessonCreateAPIView, LessonListAPIView, LessonRetrieveAPIView, \
-    LessonUpdateAPIView, LessonDestroyAPIView
+    LessonUpdateAPIView, LessonDestroyAPIView, PaymentListAPIView
 
 app_name = LmsConfig.name
 
@@ -17,4 +17,6 @@ urlpatterns = [
     path('detail/<int:pk>', LessonRetrieveAPIView.as_view(), name='lms-detail'),
     path('update/<int:pk>', LessonUpdateAPIView.as_view(), name='lms-update'),
     path('delete/<int:pk>', LessonDestroyAPIView.as_view(), name='lms-delete'),
+
+    path('payment/', PaymentListAPIView.as_view(), name='payment-list')
 ] + router.urls
