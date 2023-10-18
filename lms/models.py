@@ -31,9 +31,6 @@ class Lesson(models.Model):
 
 class Payment(models.Model):
 
-    # cource_or_lesson_choices = ['курс', 'урок']
-    # payment_method_choices = ['наличные', 'перевод']
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
     payment_date = models.DateField(null=True, blank=True, verbose_name='дата оплаты')
     cource_or_lesson = models.CharField(max_length=5, verbose_name='оплачен курс или урок')

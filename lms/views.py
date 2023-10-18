@@ -22,7 +22,7 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
 
 
 class CourseLessonListAPIView(generics.ListAPIView):
-    queryset = Lesson.objects.all()  # .filter(moto__isnull=False)
+    queryset = Lesson.objects.all()
     serializer_class = CourseLessonSerializer
 
 
