@@ -4,7 +4,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ModelViewSet
 
 from lms.models import Course, Lesson, Payment
-from lms.serializers import CourseSerializer, LessonSerializer, CourseLessonSerializer, PaymentSerializer
+from lms.serializers import CourseSerializer, LessonSerializer, PaymentSerializer
 
 
 class LessonCreateAPIView(generics.CreateAPIView):
@@ -21,9 +21,9 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Lesson.objects.all()
 
 
-class CourseLessonListAPIView(generics.ListAPIView):
-    queryset = Lesson.objects.all()
-    serializer_class = CourseLessonSerializer
+# class CourseLessonListAPIView(generics.ListAPIView):
+#     queryset = Lesson.objects.all()
+#     serializer_class = CourseLessonSerializer
 
 
 class LessonUpdateAPIView(generics.UpdateAPIView):
