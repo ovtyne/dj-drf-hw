@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from lms.apps import LmsConfig
 from rest_framework.routers import DefaultRouter, SimpleRouter
@@ -18,5 +19,8 @@ urlpatterns = [
     path('update/<int:pk>', LessonUpdateAPIView.as_view(), name='lms-update'),
     path('delete/<int:pk>', LessonDestroyAPIView.as_view(), name='lms-delete'),
 
-    path('payment/', PaymentListAPIView.as_view(), name='payment-list')
+    path('payment/', PaymentListAPIView.as_view(), name='payment-list'),
+
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ] + router.urls
