@@ -6,6 +6,7 @@ pillow
 python-dotenv
 django_filter
 djangorestframework-simplejwt
+drf-yasg
 
 
 

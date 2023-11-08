@@ -11,7 +11,7 @@ from lms.serializers import CourseSerializer, LessonSerializer, PaymentSerialize
 
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class LessonListAPIView(generics.ListAPIView):

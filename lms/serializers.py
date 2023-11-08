@@ -14,8 +14,8 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    lesson_count = serializers.IntegerField(source='lesson_set.all.count')
-    lesson = LessonSerializer(many=True)
+    lesson_count = serializers.IntegerField(source='lesson_set.all.count', read_only=True)
+    lesson = LessonSerializer(many=True, read_only=True)
 
     class Meta:
         model = Course
@@ -29,8 +29,6 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-
     class Meta:
         model = Subscription
         fields = '__all__'

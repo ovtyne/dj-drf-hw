@@ -48,9 +48,10 @@ class Payment(models.Model):
 class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='курс')
+    is_active = models.BooleanField(default=True, verbose_name='подписка')
 
     def __str__(self):
-        return f'{self.user} {self.course}'
+        return f'{self.user} {self.course} {self.is_active}'
 
     class Meta:
         verbose_name = 'подписка'
