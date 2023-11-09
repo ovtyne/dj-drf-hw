@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from users.models import User
@@ -12,6 +13,7 @@ class Course(models.Model):
     title = models.CharField(max_length=150, verbose_name='название')
     preview = models.ImageField(upload_to='media/courses/', **NULLABLE, verbose_name='превью')
     description = models.TextField(**NULLABLE, verbose_name='описание')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, **NULLABLE)
 
     def __str__(self):
         return f'{self.title}'
@@ -28,6 +30,7 @@ class Lesson(models.Model):
     video = models.CharField(max_length=200, **NULLABLE, verbose_name='видео')
     course = models.ForeignKey('Course', on_delete=models.CASCADE, **NULLABLE, related_name='course',
                                verbose_name='курс')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, **NULLABLE)
 
 
 class Payment(models.Model):
