@@ -12,6 +12,8 @@ class User(AbstractUser):
     phone = models.CharField(max_length=30, **NULLABLE, verbose_name='телефон')
     city = models.CharField(max_length=50, **NULLABLE, verbose_name='город')
     avatar = models.ImageField(**NULLABLE, verbose_name='ава')
+    is_active = models.BooleanField(default=True)
+    last_login = models.DateField(**NULLABLE, verbose_name='дата последнего входа')
 
     def __str__(self):
         return f'{self.email} {self.city} {self.phone}'

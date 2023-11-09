@@ -15,11 +15,17 @@ from lms.paginators import LmsPaginator
 from lms.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer, \
     PaymentStripeSerializer
 from lms.services import StripePayment
+from lms.tasks import send_description_mail
 
 
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
     # permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        new_lesson = serializer.save()
+        if new_lesson.course.description:
+            send_description_mail.delay(new_lesson)
 
 
 class LessonListAPIView(generics.ListAPIView):
@@ -50,6 +56,15 @@ class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
+
+    def perform_update(self, serializer):
+        updated_course = serializer.save()
+        send_description_mail.delay(
+            updated_course.pk,
+            updated_course.title,
+            updated_course.user.email,
+            updated_course.user.pk
+        )
 
 
 class PaymentListAPIView(generics.ListAPIView):

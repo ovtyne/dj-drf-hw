@@ -8,6 +8,10 @@ django_filter
 djangorestframework-simplejwt
 drf-yasg
 stripe
+redis
+celery
+django_celery_beat
+
 
 
 
