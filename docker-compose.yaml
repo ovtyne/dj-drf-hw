@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - pg_data:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    tty: true
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/code
+
+  celery:
+    build: .
+    tty: true
+    command:
+      - celery -A config worker -l INFO
+    depends_on:
+      - app
+      - redis
+
+volumes:
+  pg_data:
