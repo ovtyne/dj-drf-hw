@@ -15,15 +15,15 @@ router.register(r'course', CourseViewSet, basename='course')
 router.register(r'subscriptions', SubscriptionViewSet, basename='subscriptions')
 
 urlpatterns = [
-    path('create/', LessonCreateAPIView.as_view(), name='lms-create'),
-    path('', LessonListAPIView.as_view(), name='lms-list'),
-    path('detail/<int:pk>', LessonRetrieveAPIView.as_view(), name='lms-detail'),
-    path('update/<int:pk>', LessonUpdateAPIView.as_view(), name='lms-update'),
-    path('delete/<int:pk>', LessonDestroyAPIView.as_view(), name='lms-delete'),
+    path('lessons/create/', LessonCreateAPIView.as_view(), name='lessons_create'),
+    path('lessons/', LessonListAPIView.as_view(), name='lessons_list'),
+    path('lessons/detail/<int:pk>', LessonRetrieveAPIView.as_view(), name='lessons_detail'),
+    path('lessons/update/<int:pk>', LessonUpdateAPIView.as_view(), name='lessons_update'),
+    path('lessons/delete/<int:pk>', LessonDestroyAPIView.as_view(), name='lessons_delete'),
 
-    path('payment/', PaymentListAPIView.as_view(), name='payment-list'),
-    path('create', PaymentCreateAPIView.as_view(), name='payment'),
-    path('<int:pk>', PaymentRetrieveAPIView.as_view(), name='payment'),
+    path('payment/', PaymentListAPIView.as_view(), name='payment_list'),
+    path('payment/create', PaymentCreateAPIView.as_view(), name='payment_create'),
+    path('payment/<int:pk>', PaymentRetrieveAPIView.as_view(), name='payment_get'),
 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

@@ -2,30 +2,31 @@ import os
 
 import stripe
 from django_filters import OrderingFilter
-from rest_framework import generics, viewsets, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, status
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 from lms.models import Course, Lesson, Payment, Subscription
 from lms.paginators import LmsPaginator
+from lms.permissions import IsOwner, IsMember, IsModerator
 from lms.serializers import CourseSerializer, LessonSerializer, PaymentSerializer, SubscriptionSerializer, \
     PaymentStripeSerializer
 from lms.services import StripePayment
 from lms.tasks import send_description_mail
+from users.models import UserRoles
 
 
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsMember]
 
     def perform_create(self, serializer):
         new_lesson = serializer.save()
-        if new_lesson.course.description:
-            send_description_mail.delay(new_lesson)
+        new_lesson.user = self.request.user
+        new_lesson.save()
 
 
 class LessonListAPIView(generics.ListAPIView):
@@ -34,28 +35,41 @@ class LessonListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = LmsPaginator
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == UserRoles.MODERATOR:
+            return Lesson.objects.all()
+        else:
+            return Lesson.objects.filter(user=user)
+
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsModerator | IsOwner]
 
 
 class LessonUpdateAPIView(generics.UpdateAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = LmsPaginator
+
+    def perform_create(self, serializer):
+        new_course = serializer.save()
+        new_course.user = self.request.user
+        new_course.save()
 
     def perform_update(self, serializer):
         updated_course = serializer.save()
@@ -69,15 +83,21 @@ class CourseViewSet(ModelViewSet):
 
 class PaymentListAPIView(generics.ListAPIView):
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsModerator | IsOwner]
     queryset = Payment.objects.all()
-    filter_backends = [SearchFilter, OrderingFilter]
+    filter_backends = [OrderingFilter, DjangoFilterBackend]
     filterset_fields = ['course', 'lesson']
-    ordering_fields = ('payment_date',)
+    ordering_fields = ('date', 'method',)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == UserRoles.MODERATOR:
+            return Payment.objects.all()
+        else:
+            return Payment.objects.filter(user=user)
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
-
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
@@ -105,15 +125,10 @@ class PaymentCreateAPIView(generics.CreateAPIView):
 class PaymentRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = PaymentStripeSerializer
     queryset = Payment.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsModerator | IsOwner]
 
 
 class SubscriptionViewSet(ModelViewSet):
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
     permission_classes = [IsAuthenticated]
-
-
-
-
-

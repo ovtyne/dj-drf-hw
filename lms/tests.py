@@ -1,21 +1,21 @@
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
 
-from lms.models import Lesson, Course, Subscription
+from lms.models import Subscription, Course, Lesson
 from users.models import User
+from rest_framework.test import APITestCase
 
 
 class LessonTestCase(APITestCase):
     def setUp(self):
         self.user = User.objects.create(
-            email='user@gmail.com',
-            password='password'
+            email='testuser@gmail.com',
+            password='testpassword'
         )
         self.client.force_authenticate(user=self.user)
 
         self.lesson = Lesson.objects.create(
-            title='Lesson',
-            description='description',
+            title='Test Lesson',
+            description='Test description',
             user=self.user
         )
 
@@ -54,8 +54,8 @@ class LessonTestCase(APITestCase):
 
     def test_update_lesson(self):
         updated_data = {
-            'title': 'Updated Title',
-            'description': 'Updated Lesson',
+            'title': 'Updated Lesson Title',
+            'description': 'Updated Lesson description',
         }
 
         response = self.client.put(f'/lessons/update/{self.lesson.pk}', updated_data,
@@ -64,8 +64,8 @@ class LessonTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.lesson.refresh_from_db()
-        self.assertEqual(self.lesson.title, 'Updated Title')
-        self.assertEqual(self.lesson.overview, 'Updated Lesson')
+        self.assertEqual(self.lesson.title, 'Updated Lesson Title')
+        self.assertEqual(self.lesson.description, 'Updated Lesson description')
 
     def test_destroy_lesson(self):
         self.client.delete(f'/lessons/delete/{self.lesson.pk}')
@@ -79,26 +79,26 @@ class SubscriptionTestCase(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create(
-            email='user@gmail.com',
-            password='password'
+            email='testuser@gmail.com',
+            password='testpassword'
         )
         self.client.force_authenticate(user=self.user)
 
         self.course = Course.objects.create(
             title='Test Course',
-            description='Test Overview',
+            description='Test description',
             user=self.user
         )
 
         self.course_for_sub_view = Course.objects.create(
             title='Test View',
-            description='Test Overview',
+            description='Test description',
             user=self.user
         )
 
         self.course_for_sub_del = Course.objects.create(
             title='Del Course',
-            description='Test Overview',
+            description='Test description',
             user=self.user
         )
 
@@ -144,7 +144,7 @@ class SubscriptionTestCase(APITestCase):
                         "subscription_status": True,
                         "title": "Test View",
                         "preview": None,
-                        "description": "Test Overview",
+                        "description": "Test description",
                         "user": 8
                     }
                 ]
@@ -157,3 +157,4 @@ class SubscriptionTestCase(APITestCase):
         self.assertFalse(
             Subscription.objects.filter(user=self.user, course=self.course_for_sub_del).exists()
         )
+
