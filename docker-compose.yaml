@@ -1,10 +1,11 @@
 version: "3"
 
 services:
+
   redis:
     image: redis:latest
     ports:
-      - "6378:6379"
+      - "6379:6379"
 
   db:
     image: postgres
@@ -23,29 +24,29 @@ services:
   app:
     build: .
     tty: true
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "python manage.py migrate" && "python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     volumes:
       - .:/code
 
-  celery:
-    build: .
-    tty: true
-    command:
-      - celery -A config worker -l INFO
-    depends_on:
-      - app
-      - redis
-
-  celery_beat:
-    build: .
-    tty: true
-    command:
-      - celery -A config beat -l INFO -S Django
-    depends_on:
-      - app
-      - redis
+#  celery:
+#    build: .
+#    tty: true
+#    command:
+#      - celery -A config worker -l INFO
+#    depends_on:
+#      - app
+#      - redis
+#
+#  celery_beat:
+#    build: .
+#    tty: true
+#    command:
+#      - celery -A config beat -l INFO -S Django
+#    depends_on:
+#      - app
+#      - redis
 
 volumes:
   pg_data:
