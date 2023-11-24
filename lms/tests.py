@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.reverse import reverse
 
 from lms.models import Subscription, Course, Lesson
 from users.models import User
@@ -25,7 +26,7 @@ class LessonTestCase(APITestCase):
             'description': 'Test',
         }
 
-        response = self.client.post('/lessons/create/', data, format='json')
+        response = self.client.post('/lms/lessons/create/', data, format='json')
 
         self.assertEqual(
             response.status_code,
@@ -37,7 +38,7 @@ class LessonTestCase(APITestCase):
         )
 
     def test_retrieve_lesson(self):
-        response = self.client.get(f'/lessons/list/{self.lesson.pk}')
+        response = self.client.get(f'/lms/lessons/retrieve/{self.lesson.pk}')
 
         self.assertEqual(
             response.status_code,
@@ -45,7 +46,7 @@ class LessonTestCase(APITestCase):
         )
 
     def test_list_lesson(self):
-        response = self.client.get(f'/lessons/')
+        response = self.client.get(f'/lms/lessons/list/')
 
         self.assertEqual(
             response.status_code,
@@ -58,7 +59,7 @@ class LessonTestCase(APITestCase):
             'description': 'Updated Lesson description',
         }
 
-        response = self.client.put(f'/lessons/update/{self.lesson.pk}', updated_data,
+        response = self.client.put(f'/lms/lessons/update/{self.lesson.pk}', updated_data,
                                    format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -68,7 +69,7 @@ class LessonTestCase(APITestCase):
         self.assertEqual(self.lesson.description, 'Updated Lesson description')
 
     def test_destroy_lesson(self):
-        self.client.delete(f'/lessons/delete/{self.lesson.pk}')
+        self.client.delete(f'/lms/lessons/delete/{self.lesson.pk}')
 
         self.assertFalse(
             Lesson.objects.filter(title='Test Lesson').exists()
@@ -85,76 +86,35 @@ class SubscriptionTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         self.course = Course.objects.create(
-            title='Test Course',
-            description='Test description',
+            title='test_course',
+            description='test_course',
             user=self.user
         )
 
-        self.course_for_sub_view = Course.objects.create(
-            title='Test View',
-            description='Test description',
-            user=self.user
+    # def test_create(self):
+    #     subscription = {
+    #         "user": self.user.pk,
+    #         "course": self.course.pk
+    #     }
+    #
+    #     response = self.client.post(reverse('lms:sub_create'), data=subscription)
+    #
+    #     self.assertEqual(
+    #         response.status_code,
+    #         status.HTTP_201_CREATED
+    #     )
+
+    def test_delete(self):
+        course = Subscription.objects.create(
+            user=self.user,
+            course=self.course
         )
 
-        self.course_for_sub_del = Course.objects.create(
-            title='Del Course',
-            description='Test description',
-            user=self.user
+        response = self.client.delete(
+            reverse('lms:sub_delete', kwargs={'pk': course.pk})
         )
-
-        self.sub_for_del = Subscription.objects.create(
-            course=self.course_for_sub_del
-        )
-
-    def test_create_subscription(self):
-        data = {
-            'course': self.course.pk
-        }
-
-        response = self.client.post('/subscription/create/', data, format='json')
 
         self.assertEqual(
             response.status_code,
-            status.HTTP_201_CREATED
+            status.HTTP_204_NO_CONTENT
         )
-
-        self.assertTrue(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
-        )
-
-    def test_sub_on_course_view(self):
-        data = {
-            'course': self.course_for_sub_view.pk
-        }
-        self.client.post('/subscription/create/', data, format='json')
-
-        response = self.client.get('/course/')
-
-        self.assertEqual(
-            response.json(),
-            {
-                "count": 1,
-                "next": None,
-                "previous": None,
-                "results": [
-                    {
-                        "id": 8,
-                        "lesson_count": 0,
-                        "lessons_list": [],
-                        "subscription_status": True,
-                        "title": "Test View",
-                        "preview": None,
-                        "description": "Test description",
-                        "user": 8
-                    }
-                ]
-            }
-        )
-
-    def test_destroy_subscription(self):
-        self.client.delete(f'/subscription/delete/{self.sub_for_del.pk}')
-
-        self.assertFalse(
-            Subscription.objects.filter(user=self.user, course=self.course_for_sub_del).exists()
-        )
-

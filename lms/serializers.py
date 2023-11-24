@@ -19,6 +19,9 @@ class CourseSerializer(serializers.ModelSerializer):
     lessons_list = LessonSerializer(many=True, read_only=True)
     subscription_status = serializers.SerializerMethodField(read_only=True)
 
+    def get_subscription_status(self, obj):
+        return Subscription.objects.filter(user=obj.user, course=obj)
+
     class Meta:
         model = Course
         fields = '__all__'

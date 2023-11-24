@@ -5,6 +5,7 @@ from django_filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework.filters import SearchFilter
+from rest_framework.generics import CreateAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
@@ -128,7 +129,19 @@ class PaymentRetrieveAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated, IsModerator | IsOwner]
 
 
-class SubscriptionViewSet(ModelViewSet):
+class SubscriptionCreateAPIView(CreateAPIView):
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
-    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer, *args, **kwargs):
+        new_subscription = serializer.save()
+        new_subscription.user = self.request.user
+        pk = self.kwargs.get('pk')
+        new_subscription.course = Course.objects.get(pk=pk)
+        new_subscription.save()
+
+
+class SubscriptionDestroyAPIView(DestroyAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+    # permission_classes = [IsModerator]

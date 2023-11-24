@@ -23,7 +23,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=9, choices=UserRoles.choices, default=UserRoles.MEMBER, verbose_name='роль')
 
     def __str__(self):
-        return f'{self.email} {self.city} {self.phone}'
+        return f'{self.email}'
 
     class Meta:
         verbose_name = 'пользователь'
